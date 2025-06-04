@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Polling App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #ecf0f1;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #7f8c8d;
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: #2c3e50;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-tab:hover {
+            background: #d5dbdb;
+        }
+
+        .tab-content {
+            padding: 40px;
+            min-height: 600px;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: #fafafa;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+
+        .candidate-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .candidate-option {
+            padding: 20px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .candidate-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .candidate-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .chart-container {
+            background: #fafafa;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .chart-container h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .alert {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+
+        @media (max-width: 768px) {
+            .candidate-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗳️ Election Polling App</h1>
+            <p>Data Collection & Analytics Dashboard</p>
+            <small style="opacity: 0.8;">⚠️ Note: Data is stored in memory for this demo - export regularly</small>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('poll')">📝 Data Collection</button>
+            <button class="nav-tab" onclick="showTab('dashboard')">📊 Dashboard</button>
+        </div>
+
+        <div class="tab-content">
+            <!-- Poll Collection Form -->
+            <div class="form-section active" id="poll-section">
+                <h2 style="margin-bottom: 30px; color: #2c3e50;">Interview Data Collection</h2>
+                
+                <div id="success-alert" class="alert" style="display: none;">
+                    ✅ Poll data saved successfully!
+                </div>
+
+                <form id="pollForm">
+                    <div class="form-group">
+                        <label for="location">📍 Location/Area</label>
+                        <input type="text" id="location" name="location" required placeholder="e.g., Downtown District, Ward 5">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event">🏛️ Event/Venue</label>
+                        <input type="text" id="event" name="event" required placeholder="e.g., Community Center, Market Square">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="interviewer">👤 Interviewer Name</label>
+                        <input type="text" id="interviewer" name="interviewer" required placeholder="Your name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">🎂 Respondent Age Group</label>
+                        <select id="age" name="age" required>
+                            <option value="">Select age group</option>
+                            <option value="18-25">18-25</option>
+                            <option value="26-35">26-35</option>
+                            <option value="36-45">36-45</option>
+                            <option value="46-55">46-55</option>
+                            <option value="56+">56+</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">⚥ Gender</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🗳️ Which candidate would you vote for?</label>
+                        <div class="candidate-grid">
+                            <div class="candidate-option" onclick="selectCandidate('A')">
+                                <h3>Candidate A</h3>
+                                <p>Party A</p>
+                            </div>
+                            <div class="candidate-option" onclick="selectCandidate('B')">
+                                <h3>Candidate B</h3>
+                                <p>Party B</p>
+                            </div>
+                            <div class="candidate-option" onclick="selectCandidate('C')">
+                                <h3>Candidate C</h3>
+                                <p>Party C</p>
+                            </div>
+                            <div class="candidate-option" onclick="selectCandidate('D')">
+                                <h3>Candidate D</h3>
+                                <p>Party D</p>
+                            </div>
+                        </div>
+                        <input type="hidden" id="candidate" name="candidate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">📝 Additional Notes</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Any additional observations or comments"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn">💾 Save Poll Data</button>
+                </form>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="form-section" id="dashboard-section">
+                <h2 style="margin-bottom: 30px; color: #2c3e50;">Analytics Dashboard</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-polls">0</div>
+                        <div class="stat-label">Total Polls</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="locations-count">0</div>
+                        <div class="stat-label">Locations Covered</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="leading-candidate">-</div>
+                        <div class="stat-label">Leading Candidate</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="chart-container">
+                        <h3>🏆 Candidate Performance</h3>
+                        <canvas id="candidateChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>📊 Age Group Breakdown</h3>
+                        <canvas id="ageChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>📍 Location Distribution</h3>
+                        <canvas id="locationChart"></canvas>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <button class="btn" onclick="exportData()">📥 Export Data (CSV)</button>
+                    <button class="btn" onclick="clearAllData()" style="background: #e74c3c; margin-left: 10px;">🗑️ Clear All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data storage in memory (localStorage not available in this environment)
+        let pollData = [];
+        let selectedCandidate = null;
+
+        function showTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-section').classList.add('active');
+            
+            if (tab === 'dashboard') {
+                updateDashboard();
+            }
+        }
+
+        function selectCandidate(candidate) {
+            document.querySelectorAll('.candidate-option').forEach(opt => opt.classList.remove('selected'));
+            event.target.closest('.candidate-option').classList.add('selected');
+            selectedCandidate = candidate;
+            document.getElementById('candidate').value = candidate;
+        }
+
+        document.getElementById('pollForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!selectedCandidate) {
+                alert('Please select a candidate');
+                return;
+            }
+
+            const formData = new FormData(this);
+            const pollEntry = {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                location: formData.get('location'),
+                event: formData.get('event'),
+                interviewer: formData.get('interviewer'),
+                age: formData.get('age'),
+                gender: formData.get('gender'),
+                candidate: formData.get('candidate'),
+                notes: formData.get('notes')
+            };
+
+            pollData.push(pollEntry);
+            
+            document.getElementById('success-alert').style.display = 'block';
+            this.reset();
+            selectedCandidate = null;
+            document.querySelectorAll('.candidate-option').forEach(opt => opt.classList.remove('selected'));
+            
+            setTimeout(() => {
+                document.getElementById('success-alert').style.display = 'none';
+            }, 3000);
+        });
+
+        function updateDashboard() {
+            if (pollData.length === 0) {
+                document.getElementById('total-polls').textContent = '0';
+                document.getElementById('locations-count').textContent = '0';
+                document.getElementById('leading-candidate').textContent = '-';
+                return;
+            }
+
+            // Update stats
+            document.getElementById('total-polls').textContent = pollData.length;
+            
+            const uniqueLocations = [...new Set(pollData.map(p => p.location))];
+            document.getElementById('locations-count').textContent = uniqueLocations.length;
+
+            // Calculate leading candidate
+            const candidateCounts = pollData.reduce((acc, poll) => {
+                acc[poll.candidate] = (acc[poll.candidate] || 0) + 1;
+                return acc;
+            }, {});
+            
+            const leadingCandidate = Object.keys(candidateCounts).reduce((a, b) => 
+                candidateCounts[a] > candidateCounts[b] ? a : b
+            );
+            document.getElementById('leading-candidate').textContent = `Candidate ${leadingCandidate}`;
+
+            // Update charts
+            updateCandidateChart(candidateCounts);
+            updateAgeChart();
+            updateLocationChart();
+        }
+
+        function updateCandidateChart(candidateCounts) {
+            const ctx = document.getElementById('candidateChart').getContext('2d');
+            
+            if (window.candidateChart) {
+                window.candidateChart.destroy();
+            }
+            
+            window.candidateChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(candidateCounts).map(c => `Candidate ${c}`),
+                    datasets: [{
+                        data: Object.values(candidateCounts),
+                        backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateAgeChart() {
+            const ageCounts = pollData.reduce((acc, poll) => {
+                acc[poll.age] = (acc[poll.age] || 0) + 1;
+                return acc;
+            }, {});
+
+            const ctx = document.getElementById('ageChart').getContext('2d');
+            
+            if (window.ageChart) {
+                window.ageChart.destroy();
+            }
+            
+            window.ageChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ageCounts),
+                    datasets: [{
+                        label: 'Respondents',
+                        data: Object.values(ageCounts),
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateLocationChart() {
+            const locationCounts = pollData.reduce((acc, poll) => {
+                acc[poll.location] = (acc[poll.location] || 0) + 1;
+                return acc;
+            }, {});
+
+            const ctx = document.getElementById('locationChart').getContext('2d');
+            
+            if (window.locationChart) {
+                window.locationChart.destroy();
+            }
+            
+            window.locationChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(locationCounts),
+                    datasets: [{
+                        data: Object.values(locationCounts),
+                        backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportData() {
+            if (pollData.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const headers = ['ID', 'Timestamp', 'Location', 'Event', 'Interviewer', 'Age', 'Gender', 'Candidate', 'Notes'];
+            const csvContent = [
+                headers.join(','),
+                ...pollData.map(poll => [
+                    poll.id,
+                    poll.timestamp,
+                    `"${poll.location}"`,
+                    `"${poll.event}"`,
+                    `"${poll.interviewer}"`,
+                    poll.age,
+                    poll.gender,
+                    poll.candidate,
+                    `"${poll.notes || ''}"`
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `election_poll_data_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all poll data? This cannot be undone.')) {
+                pollData = [];
+                updateDashboard();
+                alert('All data cleared successfully');
+            }
+        }
+
+        // Initialize dashboard on load
+        updateDashboard();
+    </script>
+</body>
+</html>
