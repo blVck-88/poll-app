@@ -53,13 +53,19 @@ document.getElementById('pollForm').addEventListener('submit', function (e) {
         registered: formData.get('registered'),
         top_issue: formData.get('top_issue'),
         other_issue: formData.get('other_issue'),
-        notes: formData.get('notes')
+        notes: formData.get('notes'),
+        candidate: formData.get('vote_today') // <-- Added for analytics
     };
 
     pollData.push(pollEntry);
+    // Persist to localStorage
+    localStorage.setItem('pollData', JSON.stringify(pollData));
 
     // Show success alert
     document.getElementById('success-alert').style.display = 'block';
+
+    // Update dashboard immediately after new data is added
+    updateDashboard();  
 
     // Reset form
     this.reset();
@@ -106,7 +112,7 @@ function updateDashboard() {
 function updateCandidateChart(candidateCounts) {
     const ctx = document.getElementById('candidateChart').getContext('2d');
 
-    if (window.candidateChart) {
+    if (window.candidateChart && typeof window.candidateChart.destroy === 'function') {
         window.candidateChart.destroy();
     }
 
@@ -266,6 +272,7 @@ function exportData() {
 function clearAllData() {
     if (confirm('Are you sure you want to clear all poll data? This cannot be undone.')) {
         pollData = [];
+        localStorage.setItem('pollData', JSON.stringify(pollData)); // Also clear localStorage
         updateDashboard();
         alert('All data cleared successfully');
     }
