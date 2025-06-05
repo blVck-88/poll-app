@@ -1,5 +1,5 @@
 // Initialize in-memory storage
-let pollData = [];
+let pollData = JSON.parse(localStorage.getItem('pollData') || '[]'); // Load from localStorage
 let selectedCandidate = null;
 
 // Switch between tabs (e.g., form vs dashboard)
@@ -107,31 +107,72 @@ function updateDashboard() {
     updateCandidateChart(candidateCounts);
     updateAgeChart();
     updateTopIssueChart();
+    updateLocationChart(); // Added call to update location chart
 }
 
 function updateCandidateChart(candidateCounts) {
-    const ctx = document.getElementById('candidateChart').getContext('2d');
-
-    if (window.candidateChart && typeof window.candidateChart.destroy === 'function') {
-        window.candidateChart.destroy();
+    const canvas = document.getElementById('candidateChart');
+    if (!canvas) { 
+        console.error('[updateCandidateChart] canvas element "candidateChart" not found'); 
+        return; 
+    }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) { 
+        console.error('[updateCandidateChart] canvas context for "candidateChart" not found'); 
+        return; 
     }
 
-    window.candidateChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(candidateCounts),
-            datasets: [{
-                data: Object.values(candidateCounts),
-                backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c']
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom' }
-            }
+    const chart = window.candidateChart;
+    console.log('[updateCandidateChart] Function start. Current window.candidateChart:', chart, '- typeof destroy:', chart ? typeof chart.destroy : 'N/A');
+
+    // Check if it's a potentially valid chart object that can be destroyed
+    if (chart && typeof chart.destroy === 'function' && chart.ctx && chart.ctx.canvas) {
+        console.log('[updateCandidateChart] Valid chart instance found. Attempting destroy...');
+        try {
+            chart.destroy();
+            console.log('[updateCandidateChart] Chart destroyed successfully.');
+            window.candidateChart = null; // Explicitly nullify after successful destruction
+        } catch (e) {
+            console.error('[updateCandidateChart] Error during chart.destroy():', e);
+            console.error('[updateCandidateChart] Chart instance at time of error:', chart);
+            window.candidateChart = null; // Nullify on error to prevent repeated issues with a bad object
         }
-    });
+    } else if (chart) {
+        // Log if chart exists but doesn't meet all conditions for safe destruction
+        console.warn('[updateCandidateChart] Existing chart object found but will not be destroyed. Reasons:');
+        console.warn('  - typeof chart.destroy:', typeof chart.destroy, '(should be function)');
+        console.warn('  - chart.ctx && chart.ctx.canvas:', !!(chart.ctx && chart.ctx.canvas), '(should be true)');
+        // If it's not a function, it's definitely not a chart we can destroy, so nullify it.
+        if (typeof chart.destroy !== 'function') {
+            console.warn('[updateCandidateChart] window.candidateChart.destroy was not a function. Clearing window.candidateChart.');
+            window.candidateChart = null;
+        }
+    } else {
+        console.log('[updateCandidateChart] No existing chart (window.candidateChart is falsy).');
+    }
+
+    console.log('[updateCandidateChart] Creating new chart...');
+    try {
+        window.candidateChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(candidateCounts),
+                datasets: [{
+                    data: Object.values(candidateCounts),
+                    backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+        console.log('[updateCandidateChart] New chart created successfully:', window.candidateChart);
+    } catch (e) {
+        console.error('[updateCandidateChart] Error creating new chart:', e);
+    }
 }
 
 
@@ -143,7 +184,7 @@ function updateAgeChart() {
 
     const ctx = document.getElementById('ageChart').getContext('2d');
 
-    if (window.ageChart) {
+    if (window.ageChart && typeof window.ageChart.destroy === 'function') {
         window.ageChart.destroy();
     }
 
@@ -167,6 +208,38 @@ function updateAgeChart() {
 }
 
 
+function updateLocationChart() {
+    const locationCounts = pollData.reduce((acc, poll) => {
+        if (poll.location) { // Ensure location exists
+            acc[poll.location] = (acc[poll.location] || 0) + 1;
+        }
+        return acc;
+    }, {});
+
+    const ctx = document.getElementById('locationChart').getContext('2d');
+
+    if (window.locationChart && typeof window.locationChart.destroy === 'function') {
+        window.locationChart.destroy();
+    }
+
+    window.locationChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(locationCounts),
+            datasets: [{
+                data: Object.values(locationCounts),
+                backgroundColor: ['#4BC0C0', '#FF6384', '#FFCE56', '#36A2EB', '#9966FF', '#FF9F40'] // Example colors
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
 function updateTopIssueChart() {
     const issueCounts = pollData.reduce((acc, poll) => {
         let key = poll.top_issue === 'Other' ? (poll.other_issue || 'Other') : poll.top_issue;
@@ -176,7 +249,7 @@ function updateTopIssueChart() {
 
     const ctx = document.getElementById('issueChart').getContext('2d');
 
-    if (window.issueChart) {
+    if (window.issueChart && typeof window.issueChart.destroy === 'function') {
         window.issueChart.destroy();
     }
 
@@ -279,10 +352,11 @@ function clearAllData() {
 }
 
 // Initialize dashboard on load
-updateDashboard();
+// Call updateDashboard after the DOM is fully loaded to ensure chart canvases are available
+document.addEventListener('DOMContentLoaded', (event) => {
+    updateDashboard();
+});
 
-// Save to localStorage after each poll
-localStorage.setItem('pollData', JSON.stringify(pollData));
-
-// On load
-pollData = JSON.parse(localStorage.getItem('pollData') || '[]');
+// Note: pollData is already loaded from localStorage at the top of the script.
+// The line `localStorage.setItem('pollData', JSON.stringify(pollData));` was removed from here
+// as it's now handled within poll submission and data clearing.
