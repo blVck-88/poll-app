@@ -29,74 +29,218 @@
                     ✅ Poll data saved successfully!
                 </div>
 
-                <form id="pollForm">
-                    <div class="form-group">
-                        <label for="location">📍 Location/Area</label>
-                        <input type="text" id="location" name="location" required placeholder="e.g., Downtown District, Ward 5">
-                    </div>
+<form id="pollForm">
+  <!-- SECTION: Interview Metadata -->
+  <fieldset>
+    <legend>📍 Survey Logistics</legend>
+    <div class="form-group">
+      <label for="location">Location/Area</label>
+      <input type="text" id="location" name="location" required placeholder="e.g. Gatura Market">
+    </div>
+    <div class="form-group">
+      <label for="event">Event or Venue</label>
+      <input type="text" id="event" name="event" required placeholder="e.g., Market Square">
+    </div>
+    <div class="form-group">
+      <label for="interviewer">Interviewer Name</label>
+      <input type="text" id="interviewer" name="interviewer" required placeholder="Enter your name">
+    </div>
+  </fieldset>
 
-                    <div class="form-group">
-                        <label for="event">🏛️ Event/Venue</label>
-                        <input type="text" id="event" name="event" required placeholder="e.g., Community Center, Market Square">
-                    </div>
+  <!-- SECTION 1: Voting Intentions & Outcomes -->
+  <fieldset>
+    <legend>🗳️ Voting Intentions & Perceived Outcomes</legend>
 
-                    <div class="form-group">
-                        <label for="interviewer">👤 Interviewer Name</label>
-                        <input type="text" id="interviewer" name="interviewer" required placeholder="Your name">
-                    </div>
+    <div class="form-group">
+      <label>1. If the Mathioya MP elections were held today, who would you vote for?</label>
+      <select name="vote_today" required>
+        <option value="">-- Select --</option>
+        <option value="Kaburi">Kaburi</option>
+        <option value="Peter Kimari">Peter Kimari</option>
+        <option value="Haniel Njathi">Haniel Njathi</option>
+        <option value="Not sure">I’m not sure</option>
+      </select>
+    </div>
 
-                    <div class="form-group">
-                        <label for="age">🎂 Respondent Age Group</label>
-                        <select id="age" name="age" required>
-                            <option value="">Select age group</option>
-                            <option value="18-25">18-25</option>
-                            <option value="26-35">26-35</option>
-                            <option value="36-45">36-45</option>
-                            <option value="46-55">46-55</option>
-                            <option value="56+">56+</option>
-                        </select>
-                    </div>
+    <div class="form-group">
+      <label>2. How confident are you in your current choice?</label>
+      <select name="vote_confidence" required>
+        <option value="">-- Select --</option>
+        <option value="Very confident">Very confident</option>
+        <option value="Somewhat confident">Somewhat confident</option>
+        <option value="Not very confident">Not very confident</option>
+        <option value="Not sure">Not sure</option>
+      </select>
+    </div>
 
-                    <div class="form-group">
-                        <label for="gender">⚥ Gender</label>
-                        <select id="gender" name="gender" required>
-                            <option value="">Select gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
+    <div class="form-group">
+      <label>3. Who do you believe would win the Mathioya MP seat if elections were held today?</label>
+      <select name="likely_winner" required>
+        <option value="">-- Select --</option>
+        <option value="Kaburi">Kaburi</option>
+        <option value="Peter Kimari">Peter Kimari</option>
+        <option value="Haniel Njathi">Haniel Njathi</option>
+        <option value="Not sure">I’m not sure</option>
+      </select>
+    </div>
+  </fieldset>
 
-                    <div class="form-group">
-                        <label>🗳️ Which candidate would you vote for?</label>
-                        <div class="candidate-grid">
-                            <div class="candidate-option" onclick="selectCandidate('A')">
-                                <h3>Candidate A</h3>
-                                <p>Party A</p>
-                            </div>
-                            <div class="candidate-option" onclick="selectCandidate('B')">
-                                <h3>Candidate B</h3>
-                                <p>Party B</p>
-                            </div>
-                            <div class="candidate-option" onclick="selectCandidate('C')">
-                                <h3>Candidate C</h3>
-                                <p>Party C</p>
-                            </div>
-                            <div class="candidate-option" onclick="selectCandidate('D')">
-                                <h3>Candidate D</h3>
-                                <p>Party D</p>
-                            </div>
-                        </div>
-                        <input type="hidden" id="candidate" name="candidate" required>
-                    </div>
+  <!-- SECTION 2: Public Image & Perception -->
+  <fieldset>
+    <legend>📣 Candidate Visibility & Perception</legend>
 
-                    <div class="form-group">
-                        <label for="notes">📝 Additional Notes</label>
-                        <textarea id="notes" name="notes" rows="3" placeholder="Any additional observations or comments"></textarea>
-                    </div>
+    <div class="form-group">
+      <label>4. Which candidate is most visible or active in your area?</label>
+      <select name="most_visible" required>
+        <option value="">-- Select --</option>
+        <option value="Kaburi">Kaburi</option>
+        <option value="Peter Kimari">Peter Kimari</option>
+        <option value="Haniel Njathi">Haniel Njathi</option>
+        <option value="All equally">All equally</option>
+        <option value="None">None</option>
+        <option value="Not sure">Not sure</option>
+      </select>
+    </div>
 
-                    <button type="submit" class="btn">💾 Save Poll Data</button>
-                </form>
+    <div class="form-group">
+      <label>5. Whose plans or campaign agenda do you understand best?</label>
+      <select name="understand_agenda" required>
+        <option value="">-- Select --</option>
+        <option value="Kaburi">Kaburi</option>
+        <option value="Peter Kimari">Peter Kimari</option>
+        <option value="Haniel Njathi">Haniel Njathi</option>
+        <option value="None">None</option>
+        <option value="Not sure">Not sure</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>6. Who is most likely to address the real needs of Mathioya residents?</label>
+      <select name="most_likely_help" required>
+        <option value="">-- Select --</option>
+        <option value="Kaburi">Kaburi</option>
+        <option value="Peter Kimari">Peter Kimari</option>
+        <option value="Haniel Njathi">Haniel Njathi</option>
+        <option value="Not sure">Not sure</option>
+      </select>
+    </div>
+  </fieldset>
+
+  <!-- SECTION 3: Candidate Engagement & Outreach -->
+  <fieldset>
+    <legend>📬 Candidate Engagement & Outreach</legend>
+
+    <div class="form-group">
+      <label>7. Have you personally attended any meeting or rally organized by:</label><br>
+      <label><input type="checkbox" name="attended[]" value="Kaburi"> Kaburi</label><br>
+      <label><input type="checkbox" name="attended[]" value="Peter Kimari"> Peter Kimari</label><br>
+      <label><input type="checkbox" name="attended[]" value="Haniel Njathi"> Haniel Njathi</label><br>
+      <label><input type="checkbox" name="attended[]" value="None"> None of them</label>
+    </div>
+
+    <div class="form-group">
+      <label>8. Have you received campaign communication (SMS, call, social media) from:</label><br>
+      <label><input type="checkbox" name="received_comms[]" value="Kaburi"> Kaburi</label><br>
+      <label><input type="checkbox" name="received_comms[]" value="Peter Kimari"> Peter Kimari</label><br>
+      <label><input type="checkbox" name="received_comms[]" value="Haniel Njathi"> Haniel Njathi</label><br>
+      <label><input type="checkbox" name="received_comms[]" value="None"> None of them</label>
+    </div>
+  </fieldset>
+
+  <!-- SECTION 4: Voter Profile -->
+  <fieldset>
+    <legend>🧍 Voter Profile</legend>
+
+    <div class="form-group">
+      <label>9. What is your age group?</label>
+      <select name="age_group" required>
+        <option value="">-- Select --</option>
+        <option value="18–24">18–24</option>
+        <option value="25–34">25–34</option>
+        <option value="35–44">35–44</option>
+        <option value="45–54">45–54</option>
+        <option value="55+">55 and above</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>10. Are you a registered voter in Mathioya Constituency?</label>
+      <select name="registered" required>
+        <option value="">-- Select --</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+  </fieldset>
+
+  <!-- SECTION 5: Key Issue -->
+  <fieldset>
+    <legend>🔍 Key Voter Issue</legend>
+
+    <div class="form-group">
+      <label>11. What is the most important issue influencing your MP choice?</label>
+      <select name="top_issue" required onchange="toggleOtherIssue(this)">
+        <option value="">-- Select --</option>
+        <option value="Jobs & Youth Empowerment">Jobs & Youth Empowerment</option>
+        <option value="Roads & Infrastructure">Roads & Infrastructure</option>
+        <option value="Education & Bursaries">Education & Bursaries</option>
+        <option value="Healthcare">Healthcare</option>
+        <option value="Security">Security</option>
+        <option value="Other">Other (please specify)</option>
+      </select>
+      <input type="text" id="other_issue" name="other_issue" style="display:none;" placeholder="Specify other issue">
+    </div>
+  </fieldset>
+
+  <!-- Optional Notes -->
+  <div class="form-group">
+    <label for="notes">📝 Additional Notes</label>
+    <textarea id="notes" name="notes" rows="3" placeholder="Any extra observations or comments"></textarea>
+  </div>
+
+  <button type="submit" class="btn">💾 Submit Survey</button>
+</form>
+
+<script>
+  function toggleOtherIssue(select) {
+    const otherInput = document.getElementById("other_issue");
+    otherInput.style.display = select.value === "Other" ? "block" : "none";
+  }
+</script>
+
+<style>
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  fieldset {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  legend {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .btn:hover {
+    background-color: #0056b3;
+  }
+</style>
+
             </div>
 
             <!-- Dashboard -->
